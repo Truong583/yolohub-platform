@@ -54,7 +54,7 @@ export class BlogController {
    * Get blog by ID
    */
   static async getBlogById(req: Request, res: Response): Promise<void> {
-    const { blogId } = req.params
+    const { blogId } = req.params as Record<string, string>
     const blog = await BlogService.getBlogById(blogId)
 
     sendSuccess.ok(res, 'Blog fetched successfully', { blog })
@@ -64,7 +64,7 @@ export class BlogController {
    * Get blog by slug (public endpoint)
    */
   static async getBlogBySlug(req: Request, res: Response): Promise<void> {
-    const { slug } = req.params
+    const { slug } = req.params as Record<string, string>
     const blog = await BlogService.getBlogBySlug(slug)
 
     sendSuccess.ok(res, 'Blog fetched successfully', { blog })
@@ -74,7 +74,7 @@ export class BlogController {
    * Update blog post
    */
   static async updateBlog(req: Request, res: Response): Promise<void> {
-    const { blogId } = req.params
+    const { blogId } = req.params as Record<string, string>
     const updateData: UpdateBlogInput = req.body
     const isAdmin = req.user!.roles?.includes('admin') || false
     const authorId = isAdmin ? undefined : req.user!.userId
@@ -87,7 +87,7 @@ export class BlogController {
    * Delete blog post
    */
   static async deleteBlog(req: Request, res: Response): Promise<void> {
-    const { blogId } = req.params
+    const { blogId } = req.params as Record<string, string>
     const isAdmin = req.user!.roles?.includes('admin') || false
     const authorId = isAdmin ? undefined : req.user!.userId
     await BlogService.deleteBlog(blogId, authorId)

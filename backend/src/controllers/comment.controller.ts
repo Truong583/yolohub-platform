@@ -37,7 +37,7 @@ export class CommentController {
    * Get comment by ID
    */
   static async getCommentById(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
 
     const comment = await CommentService.getCommentById(id)
 
@@ -48,7 +48,7 @@ export class CommentController {
    * Get comments for a specific lesson
    */
   static async getLessonComments(req: Request, res: Response): Promise<void> {
-    const { lessonId } = req.params
+    const { lessonId } = req.params as Record<string, string>
     const query = req.query as unknown as GetLessonCommentsQuery
 
     const result = await CommentService.getLessonComments(lessonId, query)
@@ -60,7 +60,7 @@ export class CommentController {
    * Get user's comments
    */
   static async getUserComments(req: Request, res: Response): Promise<void> {
-    const { userId } = req.params
+    const { userId } = req.params as Record<string, string>
     const query = req.query as unknown as GetUserCommentsQuery
 
     const result = await CommentService.getUserComments(userId, query)
@@ -100,7 +100,7 @@ export class CommentController {
    * Update comment
    */
   static async updateComment(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     const userId = req.user?.userId
     if (!userId) {
       res.status(401).json({ success: false, message: 'Unauthorized' })
@@ -118,7 +118,7 @@ export class CommentController {
    * Delete comment
    */
   static async deleteComment(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     const userId = req.user?.userId
 
     if (!userId) {
@@ -139,7 +139,7 @@ export class CommentController {
    * Get comment replies
    */
   static async getCommentReplies(req: Request, res: Response): Promise<void> {
-    const { commentId } = req.params
+    const { commentId } = req.params as Record<string, string>
     const query = req.query as unknown as GetCommentRepliesQuery
 
     const result = await CommentService.getCommentReplies(commentId, query)
@@ -151,7 +151,7 @@ export class CommentController {
    * Toggle reaction on comment (add if not exists, remove if exists)
    */
   static async addReaction(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     const userId = req.user?.userId
 
     if (!userId) {
@@ -169,7 +169,7 @@ export class CommentController {
    * Remove reaction from comment
    */
   static async removeReaction(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     const userId = req.user?.userId
 
     if (!userId) {
@@ -187,7 +187,7 @@ export class CommentController {
    * Update comment status (admin only)
    */
   static async updateCommentStatus(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     const { status } = req.body
 
     const comment = await CommentService.updateCommentStatus(id, status)
@@ -199,7 +199,7 @@ export class CommentController {
    * Get comment reactions
    */
   static async getCommentReactions(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     const query = req.query as unknown as GetCommentReactionsQuery
 
     const result = await CommentService.getCommentReactions(id, query)
