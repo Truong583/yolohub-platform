@@ -73,11 +73,19 @@ export class UserService {
       // Find roles by ID or name
       const roleIds = []
       for (const roleData of roles) {
+        if (typeof roleData !== 'string') {
+          throw new ValidationError('Invalid role value', ErrorCodes.INVALID_INPUT_FORMAT)
+        }
+        const roleValue = roleData.trim()
+        if (!roleValue) {
+          throw new ValidationError('Role value cannot be empty', ErrorCodes.INVALID_INPUT_FORMAT)
+        }
+
         let role
-        if (mongoose.Types.ObjectId.isValid(roleData)) {
-          role = await Role.findById(roleData)
+        if (mongoose.Types.ObjectId.isValid(roleValue)) {
+          role = await Role.findById(roleValue)
         } else {
-          role = await Role.findOne({ name: roleData })
+          role = await Role.findOne({ name: roleValue })
         }
         if (role) {
           roleIds.push(role._id)
@@ -106,7 +114,7 @@ export class UserService {
     const totalPages = Math.ceil(total / limitNum)
 
     return {
-      users: users as IUser[],
+      users: users as unknown as IUser[],
       pagination: {
         total,
         page: pageNum,
@@ -190,11 +198,19 @@ export class UserService {
     if (updateData.roles && updateData.roles.length > 0) {
       const roles = []
       for (const roleData of updateData.roles) {
+        if (typeof roleData !== 'string') {
+          throw new ValidationError('Invalid role value', ErrorCodes.INVALID_INPUT_FORMAT)
+        }
+        const roleValue = roleData.trim()
+        if (!roleValue) {
+          throw new ValidationError('Role value cannot be empty', ErrorCodes.INVALID_INPUT_FORMAT)
+        }
+
         let role
-        if (mongoose.Types.ObjectId.isValid(roleData)) {
-          role = await Role.findById(roleData)
+        if (mongoose.Types.ObjectId.isValid(roleValue)) {
+          role = await Role.findById(roleValue)
         } else {
-          role = await Role.findOne({ name: roleData })
+          role = await Role.findOne({ name: roleValue })
         }
 
         if (!role) {

@@ -343,7 +343,7 @@ export class PDFService {
       const html = this.generateInvoiceHTML(data)
 
       await page.setContent(html, {
-        waitUntil: 'networkidle0'
+        waitUntil: 'load'
       })
 
       const pdfBuffer = await page.pdf({

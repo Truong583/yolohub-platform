@@ -41,7 +41,7 @@ export class CartController {
    */
   static async removeFromCart(req: Request, res: Response): Promise<void> {
     const userId = req.user?.userId
-    const { courseId } = req.params
+    const { courseId } = req.params as Record<string, string>
 
     if (!userId) {
       throw new ValidationError('User ID is required')
@@ -57,7 +57,7 @@ export class CartController {
    */
   static async updateCartItem(req: Request, res: Response): Promise<void> {
     const userId = req.user?.userId
-    const { courseId } = req.params
+    const { courseId } = req.params as Record<string, string>
 
     if (!userId) {
       throw new ValidationError('User ID is required')

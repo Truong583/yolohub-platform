@@ -251,11 +251,11 @@ export class LessonService {
 
     switch (lessonData.contentType) {
       case 'video': {
-        resource = await Video.findById(lessonData.resourceId).lean()
+        resource = (await Video.findById(lessonData.resourceId).lean()) as unknown as IVideo | null
         break
       }
       case 'article': {
-        resource = await Article.findById(lessonData.resourceId).lean()
+        resource = (await Article.findById(lessonData.resourceId).lean()) as unknown as IArticle | null
         break
       }
       case 'quiz': {
@@ -278,7 +278,7 @@ export class LessonService {
             ...quizResource,
             totalQuestions,
             ...(questions && { questions })
-          } as IQuizWithQuestions
+          } as unknown as IQuizWithQuestions
         }
         break
       }
@@ -489,15 +489,21 @@ export class LessonService {
     switch (contentType) {
       case 'video': {
         const query = Video.findById(resourceId)
-        return selectQuery ? await query.select(selectQuery).lean() : await query.lean()
+        return selectQuery
+          ? ((await query.select(selectQuery).lean()) as unknown as IVideo | null)
+          : ((await query.lean()) as unknown as IVideo | null)
       }
       case 'article': {
         const query = Article.findById(resourceId)
-        return selectQuery ? await query.select(selectQuery).lean() : await query.lean()
+        return selectQuery
+          ? ((await query.select(selectQuery).lean()) as unknown as IArticle | null)
+          : ((await query.lean()) as unknown as IArticle | null)
       }
       case 'quiz': {
         const query = Quiz.findById(resourceId)
-        return selectQuery ? await query.select(selectQuery).lean() : await query.lean()
+        return selectQuery
+          ? ((await query.select(selectQuery).lean()) as unknown as IQuiz | null)
+          : ((await query.lean()) as unknown as IQuiz | null)
       }
       default:
         throw new ValidationError('Invalid content type', ErrorCodes.INVALID_INPUT_FORMAT)

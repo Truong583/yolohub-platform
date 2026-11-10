@@ -37,7 +37,7 @@ export class ReviewController {
    * Get review by ID
    */
   static async getReviewById(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
 
     const review = await ReviewService.getReviewById(id)
 
@@ -48,7 +48,7 @@ export class ReviewController {
    * Update review
    */
   static async updateReview(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     const userId = req.user!.userId
     const updateData: UpdateReviewInput = req.body
 
@@ -61,7 +61,7 @@ export class ReviewController {
    * Delete review
    */
   static async deleteReview(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     const userId = req.user!.userId
 
     await ReviewService.deleteReview(id, userId)
@@ -73,7 +73,7 @@ export class ReviewController {
    * Get reviews for a specific course
    */
   static async getCourseReviews(req: Request, res: Response): Promise<void> {
-    const { courseId } = req.params
+    const { courseId } = req.params as Record<string, string>
     const query = req.query as unknown as GetCourseReviewsQuery
 
     const result = await ReviewService.getCourseReviews(courseId, query)
@@ -85,7 +85,7 @@ export class ReviewController {
    * Get reviews by a specific user
    */
   static async getUserReviews(req: Request, res: Response): Promise<void> {
-    const { userId } = req.params
+    const { userId } = req.params as Record<string, string>
     const query = req.query as unknown as GetUserReviewsQuery
 
     const result = await ReviewService.getUserReviews(userId, query)
@@ -97,7 +97,7 @@ export class ReviewController {
    * Get course rating statistics
    */
   static async getCourseRatingStats(req: Request, res: Response): Promise<void> {
-    const { courseId } = req.params
+    const { courseId } = req.params as Record<string, string>
 
     const stats = await ReviewService.getCourseRatingStats(courseId)
 
@@ -108,7 +108,7 @@ export class ReviewController {
    * Admin: Update review status
    */
   static async updateReviewStatus(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     const { status } = req.body
 
     const review = await ReviewService.updateReviewStatus(id, status)

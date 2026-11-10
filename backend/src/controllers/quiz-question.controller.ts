@@ -38,7 +38,7 @@ export class QuizQuestionController {
    * Get questions by quiz ID
    */
   static async getQuestionsByQuiz(req: Request, res: Response): Promise<void> {
-    const { quizId } = req.params
+    const { quizId } = req.params as Record<string, string>
     const query: Partial<GetQuestionsByQuizQuery> = req.query
     const result = await QuizQuestionService.getQuestionsByQuiz(quizId, query)
 
@@ -49,7 +49,7 @@ export class QuizQuestionController {
    * Get all questions by quiz ID (no pagination)
    */
   static async getAllQuestionsByQuiz(req: Request, res: Response): Promise<void> {
-    const { quizId } = req.params
+    const { quizId } = req.params as Record<string, string>
     const questions = await QuizQuestionService.getAllQuestionsByQuiz(quizId)
 
     sendSuccess.ok(res, 'Quiz questions fetched successfully', { questions })
@@ -59,7 +59,7 @@ export class QuizQuestionController {
    * Get quiz question by ID
    */
   static async getQuizQuestionById(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     const question = await QuizQuestionService.getQuizQuestionById(id)
 
     sendSuccess.ok(res, 'Quiz question fetched successfully', { question })
@@ -69,7 +69,7 @@ export class QuizQuestionController {
    * Update quiz question
    */
   static async updateQuizQuestion(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     const updateData: UpdateQuizQuestionInput = req.body
     const question = await QuizQuestionService.updateQuizQuestion(id, updateData)
 
@@ -80,7 +80,7 @@ export class QuizQuestionController {
    * Delete quiz question
    */
   static async deleteQuizQuestion(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     await QuizQuestionService.deleteQuizQuestion(id)
 
     sendSuccess.ok(res, 'Quiz question deleted successfully')

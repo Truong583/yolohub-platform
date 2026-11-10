@@ -42,7 +42,7 @@ export class CouponController {
    * Get coupon by ID
    */
   static async getCouponById(req: Request, res: Response): Promise<void> {
-    const { couponId } = req.params
+    const { couponId } = req.params as Record<string, string>
     const coupon = await CouponService.getCouponById(couponId)
 
     sendSuccess.ok(res, 'Coupon fetched successfully', { coupon })
@@ -52,7 +52,7 @@ export class CouponController {
    * Update coupon
    */
   static async updateCoupon(req: Request, res: Response): Promise<void> {
-    const { couponId } = req.params
+    const { couponId } = req.params as Record<string, string>
     const updateData: UpdateCouponInput = req.body
     const coupon = await CouponService.updateCoupon(couponId, updateData)
 
@@ -63,7 +63,7 @@ export class CouponController {
    * Delete coupon
    */
   static async deleteCoupon(req: Request, res: Response): Promise<void> {
-    const { couponId } = req.params
+    const { couponId } = req.params as Record<string, string>
     await CouponService.deleteCoupon(couponId)
 
     sendSuccess.ok(res, 'Coupon deleted successfully')
@@ -83,7 +83,7 @@ export class CouponController {
    * Apply coupon (for checkout process)
    */
   static async applyCoupon(req: Request, res: Response): Promise<void> {
-    const { couponId } = req.params
+    const { couponId } = req.params as Record<string, string>
     const coupon = await CouponService.applyCoupon(couponId)
 
     sendSuccess.ok(res, 'Coupon applied successfully', { coupon })

@@ -25,7 +25,7 @@ export class RoleController {
    * Get role by ID with optional inheritance information
    */
   static async getRoleById(req: Request, res: Response): Promise<void> {
-    const { roleId } = req.params
+    const { roleId } = req.params as Record<string, string>
     const { includeInheritance = false } = req.query
 
     const role = await RoleController.roleService.getRoleById(roleId, includeInheritance === 'true')
@@ -52,7 +52,7 @@ export class RoleController {
    * Update role with inheritance support
    */
   static async updateRole(req: Request, res: Response): Promise<void> {
-    const { roleId } = req.params
+    const { roleId } = req.params as Record<string, string>
     const updateData = req.body
 
     const role = await RoleController.roleService.updateRole(roleId, updateData)
@@ -64,7 +64,7 @@ export class RoleController {
    * Delete role with dependency checking
    */
   static async deleteRole(req: Request, res: Response): Promise<void> {
-    const { roleId } = req.params
+    const { roleId } = req.params as Record<string, string>
 
     await RoleController.roleService.deleteRole(roleId)
 
@@ -75,7 +75,7 @@ export class RoleController {
    * Get user's permissions including inherited ones
    */
   static async getUserPermissions(req: Request, res: Response): Promise<void> {
-    const { userId } = req.params
+    const { userId } = req.params as Record<string, string>
 
     // Check if user can view other users' permissions or only their own
     const canViewAnyUser = hasPermission(req.userPermissions || [], PERMISSIONS.USER_READ)
@@ -94,7 +94,7 @@ export class RoleController {
    * Get all permissions for a role (including inherited)
    */
   static async getRolePermissions(req: Request, res: Response): Promise<void> {
-    const { roleId } = req.params
+    const { roleId } = req.params as Record<string, string>
 
     const permissions = await RoleController.roleService.getAllPermissions(roleId)
 
