@@ -1,0 +1,375 @@
+/* Animation definitions and keyframes */
+
+/* Core Keyframes */
+@keyframes fadeInUp {
+	0% {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes float {
+	0%,
+	100% {
+		transform: translateY(0px);
+	}
+	50% {
+		transform: translateY(-10px);
+	}
+}
+
+@keyframes chatbotGlow {
+	0%,
+	100% {
+		box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+	}
+	50% {
+		box-shadow: 0 0 30px rgba(59, 130, 246, 0.5),
+			0 0 40px rgba(59, 130, 246, 0.2);
+	}
+}
+
+@keyframes messageSlideIn {
+	0% {
+		opacity: 0;
+		transform: translateY(20px) scale(0.95);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+@keyframes bubblePop {
+	0% {
+		transform: scale(0.8);
+		opacity: 0;
+	}
+	50% {
+		transform: scale(1.05);
+	}
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+@keyframes typingDots {
+	0%,
+	60%,
+	100% {
+		transform: translateY(0);
+	}
+	30% {
+		transform: translateY(-10px);
+	}
+}
+
+@keyframes shimmerText {
+	0% {
+		background-position: -200% center;
+	}
+	100% {
+		background-position: 200% center;
+	}
+}
+
+@keyframes slideInFromBottom {
+	0% {
+		opacity: 0;
+		transform: translateY(100%) scale(0.9);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+@keyframes twinkle {
+	0%,
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+	50% {
+		opacity: 0.5;
+		transform: scale(1.1);
+	}
+}
+
+@keyframes fade-in-up {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes bounce-gentle {
+	0%,
+	100% {
+		transform: translateY(0) scale(1);
+	}
+	50% {
+		transform: translateY(-2px) scale(1.02);
+	}
+}
+
+@keyframes gradient-flow {
+	0% {
+		background-position: 0% 50%;
+		box-shadow: 0 0 10px rgba(37, 99, 235, 0.6),
+			0 0 20px rgba(124, 58, 237, 0.4);
+	}
+	50% {
+		background-position: 100% 50%;
+		box-shadow: 0 0 15px rgba(124, 58, 237, 0.8),
+			0 0 25px rgba(37, 99, 235, 0.6), 0 0 35px rgba(124, 58, 237, 0.3);
+	}
+	100% {
+		background-position: 0% 50%;
+		box-shadow: 0 0 10px rgba(37, 99, 235, 0.6),
+			0 0 20px rgba(124, 58, 237, 0.4);
+	}
+}
+
+@keyframes shimmer-glow {
+	0% {
+		opacity: 0.3;
+		transform: rotate(3deg) translate(0px, -4px) scale(1);
+	}
+	50% {
+		opacity: 1;
+		transform: rotate(3deg) translate(0px, -4px) scale(1.1);
+	}
+	100% {
+		opacity: 0.3;
+		transform: rotate(3deg) translate(0px, -4px) scale(1);
+	}
+}
+
+/* Collapsible animations */
+@keyframes slide-down {
+	from {
+		height: 0;
+	}
+	to {
+		height: var(--radix-collapsible-content-height);
+	}
+}
+
+@keyframes slide-up {
+	from {
+		height: var(--radix-collapsible-content-height);
+	}
+	to {
+		height: 0;
+	}
+}
+
+@keyframes collapsible-down {
+	from {
+		height: 0;
+		opacity: 0;
+	}
+	to {
+		height: var(--radix-collapsible-content-height);
+		opacity: 1;
+	}
+}
+
+@keyframes collapsible-up {
+	from {
+		height: var(--radix-collapsible-content-height);
+		opacity: 1;
+	}
+	to {
+		height: 0;
+		opacity: 0;
+	}
+}
+
+@keyframes accordion-down {
+	from {
+		height: 0;
+		opacity: 0;
+	}
+	to {
+		height: var(--radix-accordion-content-height);
+		opacity: 1;
+	}
+}
+
+@keyframes accordion-up {
+	from {
+		height: var(--radix-accordion-content-height);
+		opacity: 1;
+	}
+	to {
+		height: 0;
+		opacity: 0;
+	}
+}
+
+@keyframes shimmer {
+	0% {
+		transform: translateX(-100%);
+	}
+	100% {
+		transform: translateX(100%);
+	}
+}
+
+/* Animation Classes */
+@layer utilities {
+	.animate-fade-in-slow {
+		animation: fadeInUp 0.6s ease-out forwards;
+	}
+
+	.animate-float {
+		animation: float 3s ease-in-out infinite;
+	}
+
+	.animate-float-delay-1 {
+		animation: float 3s ease-in-out infinite;
+		animation-delay: 0.5s;
+	}
+
+	.animate-float-delay-2 {
+		animation: float 3s ease-in-out infinite;
+		animation-delay: 1s;
+	}
+
+	.animate-float-delay-3 {
+		animation: float 3s ease-in-out infinite;
+		animation-delay: 1.5s;
+	}
+
+	.animate-float-slow {
+		animation: float 4s ease-in-out infinite;
+		animation-delay: 0s;
+	}
+
+	.animate-float-medium {
+		animation: float 3s ease-in-out infinite;
+		animation-delay: 0.8s;
+	}
+
+	.animate-float-fast {
+		animation: float 2.5s ease-in-out infinite;
+		animation-delay: 1.2s;
+	}
+
+	.animate-twinkle-slow {
+		animation: twinkle 3s ease-in-out infinite;
+	}
+
+	.animate-twinkle-medium {
+		animation: twinkle 2s ease-in-out infinite;
+	}
+
+	.animate-twinkle-fast {
+		animation: twinkle 1.5s ease-in-out infinite;
+	}
+
+	.animate-chatbot-glow {
+		animation: chatbotGlow 3s ease-in-out infinite;
+	}
+
+	.animate-message-slide-in {
+		animation: messageSlideIn 0.4s ease-out forwards;
+	}
+
+	.animate-bubble-pop {
+		animation: bubblePop 0.3s ease-out forwards;
+	}
+
+	.animate-typing-dots {
+		animation: typingDots 1.4s ease-in-out infinite;
+	}
+
+	.animate-shimmer-text {
+		background: linear-gradient(
+			90deg,
+			transparent,
+			rgba(59, 130, 246, 0.4),
+			transparent
+		);
+		background-size: 200% 100%;
+		animation: shimmerText 2s ease-in-out infinite;
+	}
+
+	.animate-slide-in-from-bottom {
+		animation: slideInFromBottom 0.5s ease-out forwards;
+	}
+
+	.animate-fade-in-up {
+		animation: fade-in-up 0.6s ease-out;
+	}
+
+	.animate-bounce-gentle {
+		animation: bounce-gentle 2s ease-in-out infinite;
+	}
+
+	.animate-slide-down {
+		animation: slide-down 300ms ease-out;
+	}
+
+	.animate-slide-up {
+		animation: slide-up 300ms ease-out;
+	}
+}
+
+@keyframes wave {
+	0%,
+	100% {
+		transform: translateX(0%);
+	}
+	50% {
+		transform: translateX(-25%);
+	}
+}
+
+@keyframes waveReverse {
+	0%,
+	100% {
+		transform: translateX(0%);
+	}
+	50% {
+		transform: translateX(25%);
+	}
+}
+
+@keyframes scanOverlay {
+	0% {
+		top: -80px;
+		opacity: 0;
+	}
+	15% {
+		opacity: 0.7;
+	}
+	85% {
+		opacity: 0.7;
+	}
+	100% {
+		top: 100%;
+		opacity: 0;
+	}
+}
+
+.qr-scan-animation {
+	animation: scanOverlay 3s ease-in-out infinite;
+}
+@theme {
+	--animate-collapsible-down: collapsible-down 0.2s ease-out;
+	--animate-collapsible-up: collapsible-up 0.2s ease-out;
+	--animate-accordion-down: accordion-down 0.2s ease-out;
+	--animate-accordion-up: accordion-up 0.2s ease-out;
+}

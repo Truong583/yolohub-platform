@@ -1,0 +1,272 @@
+/* Brand utilities and special effects */
+
+@layer utilities {
+	/* Brand Purple Theme Utilities */
+	.bg-brand-purple-primary {
+		background-color: var(--brand-purple-primary);
+	}
+	.bg-brand-purple-secondary {
+		background-color: var(--brand-purple-secondary);
+	}
+	.bg-brand-purple-dark {
+		background-color: var(--brand-purple-dark);
+	}
+	.bg-brand-purple-light {
+		background-color: var(--brand-purple-light);
+	}
+	.bg-brand-purple-50 {
+		background-color: var(--brand-purple-50);
+	}
+	.bg-brand-purple-100 {
+		background-color: var(--brand-purple-100);
+	}
+	.bg-brand-purple-200 {
+		background-color: var(--brand-purple-200);
+	}
+
+	/* Brand Indigo Theme Utilities */
+	.bg-brand-indigo-primary {
+		background-color: var(--brand-indigo-primary);
+	}
+	.bg-brand-indigo-secondary {
+		background-color: var(--brand-indigo-secondary);
+	}
+	.bg-brand-indigo-dark {
+		background-color: var(--brand-indigo-dark);
+	}
+	.bg-brand-indigo-light {
+		background-color: var(--brand-indigo-light);
+	}
+	.bg-brand-indigo-50 {
+		background-color: var(--brand-indigo-50);
+	}
+	.bg-brand-indigo-100 {
+		background-color: var(--brand-indigo-100);
+	}
+
+	/* Sophisticated Brand Gradients - Modern Style */
+	.bg-brand-gradient-1 {
+		background: linear-gradient(
+			135deg,
+			var(--brand-purple-primary),
+			var(--brand-purple-secondary)
+		);
+	}
+	.bg-brand-gradient-2 {
+		background: linear-gradient(
+			135deg,
+			var(--brand-purple-secondary),
+			var(--brand-purple-light)
+		);
+	}
+	.bg-brand-gradient-3 {
+		background: linear-gradient(
+			135deg,
+			var(--brand-purple-dark),
+			var(--brand-purple-primary)
+		);
+	}
+	.bg-brand-gradient-4 {
+		background: linear-gradient(
+			135deg,
+			var(--brand-purple-light),
+			var(--brand-purple-secondary)
+		);
+	}
+	.bg-brand-gradient-main {
+		background: linear-gradient(
+			135deg,
+			var(--brand-purple-primary),
+			var(--brand-purple-dark)
+		);
+	}
+	.bg-brand-gradient-light {
+		background: linear-gradient(
+			135deg,
+			var(--brand-purple-50),
+			var(--brand-purple-100)
+		);
+	}
+	.bg-brand-gradient-indigo {
+		background: linear-gradient(
+			135deg,
+			var(--brand-indigo-primary),
+			var(--brand-indigo-secondary)
+		);
+	}
+	.bg-brand-gradient-accent {
+		background: linear-gradient(
+			135deg,
+			var(--brand-indigo-light),
+			var(--brand-indigo-primary)
+		);
+	}
+	.bg-brand-gradient-premium {
+		background: linear-gradient(
+			135deg,
+			var(--brand-purple-primary),
+			var(--brand-indigo-primary),
+			var(--brand-purple-secondary)
+		);
+	}
+
+	/* Hover gradient effects */
+	.hover\:bg-brand-gradient-1:hover {
+		background: linear-gradient(
+			135deg,
+			var(--brand-purple-primary),
+			var(--brand-purple-secondary)
+		);
+	}
+	.hover\:bg-brand-gradient-main:hover {
+		background: linear-gradient(
+			135deg,
+			var(--brand-purple-secondary),
+			var(--brand-purple-primary),
+			var(--brand-purple-light)
+		);
+	}
+
+	.text-brand-purple-primary {
+		color: var(--brand-purple-primary);
+	}
+	.text-brand-purple-secondary {
+		color: var(--brand-purple-secondary);
+	}
+	.text-brand-purple-dark {
+		color: var(--brand-purple-dark);
+	}
+	.text-brand-purple-light {
+		color: var(--brand-purple-light);
+	}
+
+	.text-brand-indigo-primary {
+		color: var(--brand-indigo-primary);
+	}
+	.text-brand-indigo-secondary {
+		color: var(--brand-indigo-secondary);
+	}
+	.text-brand-indigo-dark {
+		color: var(--brand-indigo-dark);
+	}
+	.text-brand-indigo-light {
+		color: var(--brand-indigo-light);
+	}
+
+	.border-brand-purple-primary {
+		border-color: var(--brand-purple-primary);
+	}
+	.border-brand-purple-secondary {
+		border-color: var(--brand-purple-secondary);
+	}
+	.border-brand-purple-dark {
+		border-color: var(--brand-purple-dark);
+	}
+	.border-brand-purple-light {
+		border-color: var(--brand-purple-light);
+	}
+	.border-brand-purple-200 {
+		border-color: var(--brand-purple-200);
+	}
+
+	.border-brand-indigo-primary {
+		border-color: var(--brand-indigo-primary);
+	}
+	.border-brand-indigo-secondary {
+		border-color: var(--brand-indigo-secondary);
+	}
+	.border-brand-indigo-200 {
+		border-color: var(--brand-indigo-100);
+	}
+
+	.hover\:bg-brand-purple-primary:hover {
+		background-color: var(--brand-purple-primary);
+	}
+	.hover\:bg-brand-purple-secondary:hover {
+		background-color: var(--brand-purple-secondary);
+	}
+	.hover\:bg-brand-purple-100:hover {
+		background-color: var(--brand-purple-100);
+	}
+
+	/* Beautiful Star Styles - Used in hero sections */
+	.star-purple {
+		color: #8b5cf6;
+		filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.8))
+			drop-shadow(0 0 16px rgba(139, 92, 246, 0.4))
+			drop-shadow(0 0 24px rgba(139, 92, 246, 0.2));
+	}
+
+	.star-blue {
+		color: #3b82f6;
+		filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.8))
+			drop-shadow(0 0 16px rgba(59, 130, 246, 0.4))
+			drop-shadow(0 0 24px rgba(59, 130, 246, 0.2));
+	}
+
+	.star-pink {
+		color: #ec4899;
+		filter: drop-shadow(0 0 8px rgba(236, 72, 153, 0.8))
+			drop-shadow(0 0 16px rgba(236, 72, 153, 0.4))
+			drop-shadow(0 0 24px rgba(236, 72, 153, 0.2));
+	}
+
+	.star-gold {
+		color: #f59e0b;
+		filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.8))
+			drop-shadow(0 0 16px rgba(245, 158, 11, 0.4))
+			drop-shadow(0 0 24px rgba(245, 158, 11, 0.2));
+	}
+
+	.star-cyan {
+		color: #06b6d4;
+		filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.8))
+			drop-shadow(0 0 16px rgba(6, 182, 212, 0.4))
+			drop-shadow(0 0 24px rgba(6, 182, 212, 0.2));
+	}
+
+	.star-indigo {
+		color: #6366f1;
+		filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.8))
+			drop-shadow(0 0 16px rgba(99, 102, 241, 0.4))
+			drop-shadow(0 0 24px rgba(99, 102, 241, 0.2));
+	}
+
+	.star-emerald {
+		color: #10b981;
+		filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.8))
+			drop-shadow(0 0 16px rgba(16, 185, 129, 0.4))
+			drop-shadow(0 0 24px rgba(16, 185, 129, 0.2));
+	}
+
+	.star-rose {
+		color: #f43f5e;
+		filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.8))
+			drop-shadow(0 0 16px rgba(244, 63, 94, 0.4))
+			drop-shadow(0 0 24px rgba(244, 63, 94, 0.2));
+	}
+
+	.star-violet {
+		color: #7c3aed;
+		filter: drop-shadow(0 0 8px rgba(124, 58, 237, 0.8))
+			drop-shadow(0 0 16px rgba(124, 58, 237, 0.4))
+			drop-shadow(0 0 24px rgba(124, 58, 237, 0.2));
+	}
+
+	.star-amber {
+		color: #d97706;
+		filter: drop-shadow(0 0 8px rgba(217, 119, 6, 0.8))
+			drop-shadow(0 0 16px rgba(217, 119, 6, 0.4))
+			drop-shadow(0 0 24px rgba(217, 119, 6, 0.2));
+	}
+
+	/* Scrollbar hide utility for horizontal scrolling */
+	.scrollbar-hide {
+		-ms-overflow-style: none; /* IE and Edge */
+		scrollbar-width: none; /* Firefox */
+	}
+
+	.scrollbar-hide::-webkit-scrollbar {
+		display: none; /* Chrome, Safari and Opera */
+	}
+}

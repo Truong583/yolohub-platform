@@ -1,0 +1,230 @@
+---
+alwaysApply: true
+---
+
+- You are an expert in TypeScript, Next.js 15 App Router, React, Shadcn UI, Tanstack Query, React Hook Form, Yup and Tailwind CSS for building admin dashboards.
+
+- Code Style and Structure
+
+  - Write concise, technical TypeScript code with accurate examples.
+  - Use functional and declarative programming patterns; avoid classes.
+  - Prefer iteration and modularization over code duplication.
+  - Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError, canEdit).
+  - Structure files: exported component, subcomponents, helpers, static content, types.
+
+- Naming Conventions
+
+  - All components should go in src/components and be named like new-component.tsx
+  - Use lowercase with dashes for directories (e.g., components/auth-wizard).
+  - Favor named exports for components.
+  - Use descriptive names for admin actions (e.g., user-action-dialog.tsx, role-delete-dialog.tsx).
+
+- TypeScript Usage
+
+  - Use TypeScript for all code; prefer interfaces over types.
+  - Use functional components with TypeScript interfaces.
+  - Define strict types for API responses and form data.
+  - Use proper typing for admin dashboard entities (users, roles, permissions).
+
+- Syntax and Formatting
+
+  - Use the "function" keyword for pure functions.
+  - Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
+  - Use declarative JSX.
+
+- UI and Styling
+
+  - Use Shadcn UI and Tailwind CSS for components and styling.
+  - Implement responsive design with Tailwind CSS; use a mobile-first approach.
+  - Follow admin dashboard UI patterns: data tables, forms, modals, sidebars.
+  - Use consistent spacing and color schemes for admin interfaces.
+
+- Performance Optimization for Admin Dashboards
+
+  - Use 'use client' freely for interactive admin components (tables, forms, modals).
+  - Implement proper loading states for data fetching operations.
+  - Use React.memo for expensive admin components like data tables.
+  - Optimize images: use WebP format, include size data, implement lazy loading.
+  - Use virtualization for large data sets in admin tables.
+
+- Data Management
+
+  - Use Tanstack Query for all API calls and caching.
+  - Implement proper error handling and retry logic.
+  - Use optimistic updates for better UX in admin operations.
+  - Implement proper pagination for admin data tables.
+  - Use proper cache invalidation strategies.
+
+- Admin Dashboard Patterns
+
+  - Use 'use client' for:
+    - Interactive data tables with sorting, filtering, pagination
+    - Forms with real-time validation
+    - Modals and dialogs
+    - State management components
+    - Components requiring browser APIs
+  - Server components for:
+    - Static layouts
+    - Initial page shells
+    - Non-interactive content
+  - Follow Next.js 15 App Router patterns for routing and layouts.
+  - Implement proper authentication guards and permission checks.
+  - Use consistent CRUD operation patterns across admin modules.
+
+- Security and Permissions
+
+  - Implement role-based access control (RBAC).
+  - Use proper authentication guards for admin routes.
+  - Validate permissions on both client and server side.
+  - Implement secure API communication patterns.
+
+- Component Organization
+
+Within the /src/components folder, organize components by feature and type:
+
+```
+/src/components
+├── /ui (Shadcn UI components)
+│   ├── button.tsx
+│   ├── table.tsx
+│   └── dialog.tsx
+├── /admin (Admin-specific components)
+│   ├── admin-header.tsx
+│   ├── admin-sidebar.tsx
+│   └── dashboard-stats.tsx
+├── /table (Reusable table components)
+│   ├── data-table.tsx
+│   ├── data-table-toolbar.tsx
+│   └── data-table-pagination.tsx
+├── /auth (Authentication components)
+│   ├── auth-guard.tsx
+│   └── user-nav.tsx
+└── /forms (Reusable form components)
+    ├── form-field.tsx
+    └── form-actions.tsx
+```
+
+- Page-Specific Components: For components used only within specific admin pages, create a `components` folder within the relevant `/app/admin` subdirectory.
+
+- Shared Admin Components: The `/src/components/admin` folder should contain reusable admin-specific components.
+
+- Feature Organization: Group related admin functionality (users, roles, courses, categories) in separate folders under `/app/admin`.
+
+- Form and Table Patterns: Maintain consistent patterns for CRUD operations across all admin modules.
+
+- Error Handling: Implement consistent error boundaries and loading states across admin pages.
+
+- Accessibility: Ensure admin interfaces are accessible with proper ARIA labels and keyboard navigation.
+- You are an expert in TypeScript, Next.js 15 App Router, React, Shadcn UI, Tanstack Query, React Hook Form, Yup and Tailwind CSS for building admin dashboards.
+
+- Code Style and Structure
+
+  - Write concise, technical TypeScript code with accurate examples.
+  - Use functional and declarative programming patterns; avoid classes.
+  - Prefer iteration and modularization over code duplication.
+  - Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError, canEdit).
+  - Structure files: exported component, subcomponents, helpers, static content, types.
+
+- Naming Conventions
+
+  - All components should go in src/components and be named like new-component.tsx
+  - Use lowercase with dashes for directories (e.g., components/auth-wizard).
+  - Favor named exports for components.
+  - Use descriptive names for admin actions (e.g., user-action-dialog.tsx, role-delete-dialog.tsx).
+
+- TypeScript Usage
+
+  - Use TypeScript for all code; prefer interfaces over types.
+  - Use functional components with TypeScript interfaces.
+  - Define strict types for API responses and form data.
+  - Use proper typing for admin dashboard entities (users, roles, permissions).
+
+- Syntax and Formatting
+
+  - Use the "function" keyword for pure functions.
+  - Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
+  - Use declarative JSX.
+
+- UI and Styling
+
+  - Use Shadcn UI and Tailwind CSS for components and styling.
+  - Implement responsive design with Tailwind CSS; use a mobile-first approach.
+  - Follow admin dashboard UI patterns: data tables, forms, modals, sidebars.
+  - Use consistent spacing and color schemes for admin interfaces.
+
+- Performance Optimization for Admin Dashboards
+
+  - Use 'use client' freely for interactive admin components (tables, forms, modals).
+  - Implement proper loading states for data fetching operations.
+  - Use React.memo for expensive admin components like data tables.
+  - Optimize images: use WebP format, include size data, implement lazy loading.
+  - Use virtualization for large data sets in admin tables.
+
+- Data Management
+
+  - Use Tanstack Query for all API calls and caching.
+  - Implement proper error handling and retry logic.
+  - Use optimistic updates for better UX in admin operations.
+  - Implement proper pagination for admin data tables.
+  - Use proper cache invalidation strategies.
+
+- Admin Dashboard Patterns
+
+  - Use 'use client' for:
+    - Interactive data tables with sorting, filtering, pagination
+    - Forms with real-time validation
+    - Modals and dialogs
+    - State management components
+    - Components requiring browser APIs
+  - Server components for:
+    - Static layouts
+    - Initial page shells
+    - Non-interactive content
+  - Follow Next.js 15 App Router patterns for routing and layouts.
+  - Implement proper authentication guards and permission checks.
+  - Use consistent CRUD operation patterns across admin modules.
+
+- Security and Permissions
+
+  - Implement role-based access control (RBAC).
+  - Use proper authentication guards for admin routes.
+  - Validate permissions on both client and server side.
+  - Implement secure API communication patterns.
+
+- Component Organization
+
+Within the /src/components folder, organize components by feature and type:
+
+```
+/src/components
+├── /ui (Shadcn UI components)
+│   ├── button.tsx
+│   ├── table.tsx
+│   └── dialog.tsx
+├── /admin (Admin-specific components)
+│   ├── admin-header.tsx
+│   ├── admin-sidebar.tsx
+│   └── dashboard-stats.tsx
+├── /table (Reusable table components)
+│   ├── data-table.tsx
+│   ├── data-table-toolbar.tsx
+│   └── data-table-pagination.tsx
+├── /auth (Authentication components)
+│   ├── auth-guard.tsx
+│   └── user-nav.tsx
+└── /forms (Reusable form components)
+    ├── form-field.tsx
+    └── form-actions.tsx
+```
+
+- Page-Specific Components: For components used only within specific admin pages, create a `components` folder within the relevant `/app/admin` subdirectory.
+
+- Shared Admin Components: The `/src/components/admin` folder should contain reusable admin-specific components.
+
+- Feature Organization: Group related admin functionality (users, roles, courses, categories) in separate folders under `/app/admin`.
+
+- Form and Table Patterns: Maintain consistent patterns for CRUD operations across all admin modules.
+
+- Error Handling: Implement consistent error boundaries and loading states across admin pages.
+
+- Accessibility: Ensure admin interfaces are accessible with proper ARIA labels and keyboard navigation.

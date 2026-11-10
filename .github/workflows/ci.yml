@@ -1,0 +1,173 @@
+# Tên pipeline - hiển thị trên tab Actions của GitHub
+name: CI Pipeline
+
+# Chạy khi nào?
+# - Có người push code lên nhánh main
+# - Có người mở Pull Request vào nhánh main
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Chỉ cấp đúng quyền cần thiết, không thừa
+# - contents: read   => đọc code trong repo
+# - packages: write  => đẩy Docker image lên GitHub Container Registry
+# - security-events: write => ghi kết quả scan bảo mật lên tab Security của GitHub
+permissions:
+  contents: read
+  packages: write
+  security-events: write
+
+# Khai báo tên image Docker một lần, dùng lại nhiều chỗ cho gọn
+# github.repository_owner tự điền username GitHub của bạn
+env:
+  IMAGE_BACKEND: ghcr.io/${{ github.repository_owner }}/yolohub-backend
+  IMAGE_FRONTEND: ghcr.io/${{ github.repository_owner }}/yolohub-frontend
+
+jobs:
+
+  # -----------------------------------------------------------------------
+  # JOB 1: Kiểm tra code có lỗi không trước khi cho merge
+  # Chạy với cả PR lẫn push vào main
+  # -----------------------------------------------------------------------
+  test-and-validate:
+    name: Lint, TypeCheck & Build Test
+    runs-on: ubuntu-latest # GitHub khởi động một máy ảo Ubuntu mới hoàn toàn
+
+    steps:
+      # Bước 1: Tải code trong repo về máy ảo
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Bước 2: Cài Node.js 20
+      # cache: 'npm' giúp lưu lại node_modules, lần sau không cần tải lại nếu package không đổi
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package.json
+            frontend/package.json
+
+      # Bước 3-5: Kiểm tra Backend
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm install
+
+      # Kiểm tra kiểu dữ liệu TypeScript - nếu sai kiểu thì dừng ở đây luôn
+      - name: TypeScript check backend
+        working-directory: ./backend
+        run: npx tsc --noEmit
+
+      # Thử build thật để chắc chắn không có lỗi compile
+      - name: Build backend
+        working-directory: ./backend
+        run: npm run build
+
+      # Bước 6-7: Kiểm tra Frontend (tương tự backend)
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
+        env:
+          NODE_ENV: production
+          NEXT_TELEMETRY_DISABLED: 1 # Next.js mặc định gửi dữ liệu build về Vercel - tắt đi vì mình tự host
+
+  # -----------------------------------------------------------------------
+  # JOB 2: Build Docker image, quét bảo mật, rồi đẩy lên registry
+  # Chỉ chạy khi Job 1 pass VÀ đây là push vào main (không phải PR)
+  # -----------------------------------------------------------------------
+  build-and-publish:
+    name: Build, Scan & Push Docker Images
+    needs: [test-and-validate] # Bắt buộc Job 1 phải xong và pass trước
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Buildx là phiên bản mở rộng của Docker build, hỗ trợ cache thông minh hơn
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Đăng nhập vào GitHub Container Registry
+      # GITHUB_TOKEN là token tự động - GitHub tạo cho mỗi lần chạy, không cần tạo thủ công
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Tạo tag cho image backend
+      # Mỗi image sẽ có 2 tag:
+      #   sha-a1b2c3d  => gắn với đúng commit đã build ra image này (dùng để rollback)
+      #   latest       => luôn trỏ vào image mới nhất
+      - name: Generate tags for backend image
+        id: meta-backend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_BACKEND }}
+          tags: |
+            type=sha,prefix=sha-,format=short
+            type=raw,value=latest
+
+      # Build image backend nhưng chưa push lên - giữ lại trong máy ảo để scan trước
+      - name: Build backend image (not push yet)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: false # chưa push
+          load: true  # load vào Docker daemon để Trivy scan được
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Quét lỗ hổng bảo mật trong image bằng Trivy
+      # Nó kiểm tra: base image, npm packages, OS packages
+      # exit-code: '0' => chỉ cảnh báo, không làm fail pipeline (có thể đổi thành '1' khi muốn chặt hơn)
+      - name: Scan backend image for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.IMAGE_BACKEND }}:sha-${{ github.sha }}
+          format: table
+          exit-code: '0'
+          severity: CRITICAL,HIGH
+
+      # Scan xong rồi, giờ mới push lên registry
+      - name: Push backend image to registry
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Tương tự cho frontend - tạo tag rồi build và push luôn 1 bước
+      - name: Generate tags for frontend image
+        id: meta-frontend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_FRONTEND }}
+          tags: |
+            type=sha,prefix=sha-,format=short
+            type=raw,value=latest
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: ${{ steps.meta-frontend.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

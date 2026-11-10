@@ -1,0 +1,40 @@
+# ==========================================
+# GITIGNORE CHUẨN DEVSECOPS (Mục 1 & 12)
+# ==========================================
+
+# 1. BẢO MẬT: Tuyệt đối không commit biến môi trường chứa secrets
+.env
+.env.*
+!.env.example
+!env.example
+
+# 2. Database backups & logs
+backups/
+*.archive.gz
+*.gz
+*.dump
+*.zip
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 3. Dependencies & Build outputs
+node_modules/
+dist/
+.next/
+out/
+build/
+
+# 4. IDE & OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 5. Temporary files
+tmp/
+temp/
+
