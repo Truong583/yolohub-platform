@@ -1,14 +1,14 @@
 
 # ============================================================
 # YOLOHUB - CI PIPELINE
-# Test Code -> Build Docker -> Security Scan -> Push GHCR
+# Test -> Build -> Security Scan -> Push to GHCR
 # ============================================================
 
 name: CI Pipeline
 
-# ============================================================
-# 1. TRIGGERS
-# ============================================================
+# ------------------------------------------------------------
+# 1. WORKFLOW TRIGGERS
+# ------------------------------------------------------------
 
 on:
   push:
@@ -19,48 +19,43 @@ on:
     branches:
       - main
 
-# ============================================================
+# ------------------------------------------------------------
 # 2. GITHUB PERMISSIONS
-# ============================================================
+# ------------------------------------------------------------
 
 permissions:
   contents: read
   packages: write
   security-events: write
 
-# ============================================================
-# 3. DOCKER IMAGE CONFIGURATION
-# ============================================================
+# ------------------------------------------------------------
+# 3. GLOBAL ENVIRONMENT
+# ------------------------------------------------------------
 
 env:
   IMAGE_BACKEND: ghcr.io/truong583/yolohub-backend
   IMAGE_FRONTEND: ghcr.io/truong583/yolohub-frontend
 
+  NEXT_PUBLIC_API_URL: https://api.truongtest.id.vn/api/v1
+  NEXT_PUBLIC_SITE_URL: https://truongtest.id.vn
+
 jobs:
 
   # ==========================================================
   # JOB 1: TEST AND VALIDATE
-  # Kiểm tra code trước khi build Docker Image
-  # Chạy trên cả Pull Request và Push vào main
   # ==========================================================
 
   test-and-validate:
-    name: Lint, TypeCheck & Build Test
+    name: TypeCheck & Build Test
     runs-on: ubuntu-latest
 
     steps:
 
-      # ------------------------------------------------------
       # Checkout source code
-      # ------------------------------------------------------
-
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # ------------------------------------------------------
       # Setup Node.js
-      # ------------------------------------------------------
-
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
@@ -71,7 +66,7 @@ jobs:
             frontend/package.json
 
       # ------------------------------------------------------
-      # BACKEND: Install, TypeScript Check, Build
+      # BACKEND
       # ------------------------------------------------------
 
       - name: Install backend dependencies
@@ -87,7 +82,7 @@ jobs:
         run: npm run build
 
       # ------------------------------------------------------
-      # FRONTEND: Install, Build
+      # FRONTEND
       # ------------------------------------------------------
 
       - name: Install frontend dependencies
@@ -100,21 +95,17 @@ jobs:
         env:
           NODE_ENV: production
           NEXT_TELEMETRY_DISABLED: 1
+          NEXT_PUBLIC_API_URL: ${{ env.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_SITE_URL: ${{ env.NEXT_PUBLIC_SITE_URL }}
 
   # ==========================================================
   # JOB 2: BUILD, SCAN AND PUBLISH DOCKER IMAGES
-  #
-  # Chỉ chạy khi:
-  # 1. Job test-and-validate thành công
-  # 2. Sự kiện là push vào nhánh main
-  #
-  # Quy trình:
-  # Build Backend -> Trivy Scan -> Push Backend
-  # Build Frontend -> Push Frontend
+  # Chỉ chạy khi Job 1 thành công và push vào main
   # ==========================================================
 
   build-and-publish:
     name: Build, Scan & Push Docker Images
+
     needs:
       - test-and-validate
 
@@ -124,22 +115,16 @@ jobs:
 
     steps:
 
-      # ------------------------------------------------------
       # Checkout source code
-      # ------------------------------------------------------
-
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # ------------------------------------------------------
       # Setup Docker Buildx
-      # ------------------------------------------------------
-
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       # ------------------------------------------------------
-      # Login to GitHub Container Registry
+      # LOGIN TO GHCR
       # ------------------------------------------------------
 
       - name: Login to GitHub Container Registry
@@ -150,7 +135,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # ======================================================
-      # BACKEND: GENERATE DOCKER TAGS
+      # BACKEND: GENERATE TAGS
       # ======================================================
 
       - name: Generate tags for backend image
@@ -164,7 +149,6 @@ jobs:
 
       # ======================================================
       # BACKEND: BUILD IMAGE
-      # Build và load image vào Docker daemon để Trivy scan
       # ======================================================
 
       - name: Build backend image (not push yet)
@@ -181,23 +165,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # ======================================================
-      # BACKEND: VERIFY LOCAL IMAGE TAG
-      # Kiểm tra image có tồn tại trước khi chạy Trivy
-      # ======================================================
-
+      # Verify backend image exists locally
       - name: Verify backend image tag
         run: |
           docker image inspect "${IMAGE_BACKEND}:sha-${GITHUB_SHA}" > /dev/null
-          echo "Backend Docker image is ready for Trivy scanning."
+          echo "Backend image is ready for security scanning."
 
       # ======================================================
-      # BACKEND: SECURITY SCAN WITH TRIVY
-      #
-      # Quan trọng:
-      # Trivy sử dụng full GitHub SHA.
-      # Docker Metadata cũng tạo tag bằng full SHA.
-      # Hai tag phải giống nhau hoàn toàn.
+      # BACKEND: TRIVY SECURITY SCAN
       # ======================================================
 
       - name: Scan backend image for vulnerabilities
@@ -209,8 +184,7 @@ jobs:
           severity: CRITICAL,HIGH
 
       # ======================================================
-      # BACKEND: PUSH IMAGE TO GHCR
-      # Chỉ push sau khi Trivy scan hoàn thành
+      # BACKEND: PUSH TO GHCR
       # ======================================================
 
       - name: Push backend image to registry
@@ -227,7 +201,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       # ======================================================
-      # FRONTEND: GENERATE DOCKER TAGS
+      # FRONTEND: GENERATE TAGS
       # ======================================================
 
       - name: Generate tags for frontend image
@@ -240,7 +214,8 @@ jobs:
             type=raw,value=latest
 
       # ======================================================
-      # FRONTEND: BUILD AND PUSH IMAGE
+      # FRONTEND: BUILD AND PUSH
+      # Truyền API URL production vào Docker Build
       # ======================================================
 
       - name: Build and push frontend image
@@ -252,6 +227,10 @@ jobs:
           push: true
 
           tags: ${{ steps.meta-frontend.outputs.tags }}
+
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ env.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_SITE_URL=${{ env.NEXT_PUBLIC_SITE_URL }}
 
           cache-from: type=gha
           cache-to: type=gha,mode=max
