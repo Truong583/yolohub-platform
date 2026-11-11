@@ -489,15 +489,15 @@ export class LessonService {
     switch (contentType) {
       case 'video': {
         const query = Video.findById(resourceId)
-        return selectQuery ? await query.select(selectQuery).lean() : await query.lean()
+        return (selectQuery ? await query.select(selectQuery).lean() : await query.lean()) as unknown as IVideo | null
       }
       case 'article': {
         const query = Article.findById(resourceId)
-        return selectQuery ? await query.select(selectQuery).lean() : await query.lean()
+        return (selectQuery ? await query.select(selectQuery).lean() : await query.lean()) as unknown as IArticle | null
       }
       case 'quiz': {
         const query = Quiz.findById(resourceId)
-        return selectQuery ? await query.select(selectQuery).lean() : await query.lean()
+        return (selectQuery ? await query.select(selectQuery).lean() : await query.lean()) as unknown as IQuiz | null
       }
       default:
         throw new ValidationError('Invalid content type', ErrorCodes.INVALID_INPUT_FORMAT)

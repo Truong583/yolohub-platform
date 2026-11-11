@@ -199,7 +199,7 @@ export class QuizAttemptService {
     }
 
     // Get all questions for this quiz but exclude correctAnswers for security
-    const questions = await QuizQuestion.find({ quizId }).select('-correctAnswers').lean()
+    const questions = (await QuizQuestion.find({ quizId }).select('-correctAnswers').lean()) as unknown as IQuizQuestion[]
     return questions
   }
 
@@ -529,7 +529,7 @@ export class QuizAttemptService {
     }
 
     // Get all questions for this quiz but exclude correctAnswers for security
-    const questions = await QuizQuestion.find({ quizId: attempt.quizId }).select('-correctAnswers').lean()
+    const questions = (await QuizQuestion.find({ quizId: attempt.quizId }).select('-correctAnswers').lean()) as unknown as IQuizQuestion[]
 
     let wasAutoCompleted = false
 
