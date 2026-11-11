@@ -1,7 +1,7 @@
 # 🤖 NHẬT KÝ SỬ DỤNG AI (AI USAGE LOG)
 
 > **Tuân thủ quy chuẩn:** Mục 10 của `PROJECT_STANDARD.md`.  
-> **Dự án:** YoloHub Fullstack Web (Next.js + Express API + MongoDB) & DevSecOps Infrastructure.  
+> **Dự án:** YoloHub Web (Next.js + Express API + MongoDB) & DevSecOps Infrastructure.  
 > **Nguyên tắc an toàn bắt buộc:** Tuyệt đối không đưa mật khẩu thật, JWT secret, private key, token API hoặc dữ liệu thật của người dùng lên AI. Mọi cấu hình và đoạn mã do AI tư vấn đều phải được kỹ sư tự tay kiểm tra, phân tích logic, phản biện và kiểm chứng thực tế.
 
 ---
