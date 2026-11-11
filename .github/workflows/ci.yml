@@ -104,7 +104,7 @@ jobs:
         with:
           images: ${{ env.IMAGE_BACKEND }}
           tags: |
-            type=sha,prefix=sha-
+            type=sha,prefix=sha-,format=long
             type=raw,value=latest
 
       # Build backend image, load locally for Trivy
@@ -123,7 +123,7 @@ jobs:
       - name: Scan backend image for vulnerabilities
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.IMAGE_BACKEND }}:sha-${{ github.sha }}
+          image-ref: ${{ env.IMAGE_BACKEND }}:sha-${{ steps.meta-backend.outputs.version }}
           format: table
           exit-code: '0'
           severity: CRITICAL,HIGH
@@ -148,7 +148,7 @@ jobs:
         with:
           images: ${{ env.IMAGE_FRONTEND }}
           tags: |
-            type=sha,prefix=sha-
+            type=sha,prefix=sha-,format=long
             type=raw,value=latest
 
       # Build and push frontend
