@@ -1,24 +1,37 @@
 
 # ============================================================
-# CI PIPELINE - YOLOHUB
+# YOLOHUB - CI PIPELINE
+# Test Code -> Build Docker -> Security Scan -> Push GHCR
 # ============================================================
 
 name: CI Pipeline
 
-# Chạy khi push hoặc Pull Request vào main
+# ============================================================
+# 1. TRIGGERS
+# ============================================================
+
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches:
+      - main
 
-# Quyền tối thiểu cần thiết
+  pull_request:
+    branches:
+      - main
+
+# ============================================================
+# 2. GITHUB PERMISSIONS
+# ============================================================
+
 permissions:
   contents: read
   packages: write
   security-events: write
 
-# Docker image names (lowercase)
+# ============================================================
+# 3. DOCKER IMAGE CONFIGURATION
+# ============================================================
+
 env:
   IMAGE_BACKEND: ghcr.io/truong583/yolohub-backend
   IMAGE_FRONTEND: ghcr.io/truong583/yolohub-frontend
@@ -27,25 +40,40 @@ jobs:
 
   # ==========================================================
   # JOB 1: TEST AND VALIDATE
+  # Kiểm tra code trước khi build Docker Image
+  # Chạy trên cả Pull Request và Push vào main
   # ==========================================================
+
   test-and-validate:
     name: Lint, TypeCheck & Build Test
     runs-on: ubuntu-latest
 
     steps:
+
+      # ------------------------------------------------------
+      # Checkout source code
+      # ------------------------------------------------------
+
       - name: Checkout code
         uses: actions/checkout@v4
+
+      # ------------------------------------------------------
+      # Setup Node.js
+      # ------------------------------------------------------
 
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: npm
           cache-dependency-path: |
             backend/package.json
             frontend/package.json
 
-      # Backend
+      # ------------------------------------------------------
+      # BACKEND: Install, TypeScript Check, Build
+      # ------------------------------------------------------
+
       - name: Install backend dependencies
         working-directory: ./backend
         run: npm install
@@ -58,7 +86,10 @@ jobs:
         working-directory: ./backend
         run: npm run build
 
-      # Frontend
+      # ------------------------------------------------------
+      # FRONTEND: Install, Build
+      # ------------------------------------------------------
+
       - name: Install frontend dependencies
         working-directory: ./frontend
         run: npm install
@@ -72,22 +103,45 @@ jobs:
 
   # ==========================================================
   # JOB 2: BUILD, SCAN AND PUBLISH DOCKER IMAGES
-  # Chỉ chạy khi push thành công lên main
+  #
+  # Chỉ chạy khi:
+  # 1. Job test-and-validate thành công
+  # 2. Sự kiện là push vào nhánh main
+  #
+  # Quy trình:
+  # Build Backend -> Trivy Scan -> Push Backend
+  # Build Frontend -> Push Frontend
   # ==========================================================
+
   build-and-publish:
     name: Build, Scan & Push Docker Images
-    needs: [test-and-validate]
+    needs:
+      - test-and-validate
+
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
     runs-on: ubuntu-latest
 
     steps:
+
+      # ------------------------------------------------------
+      # Checkout source code
+      # ------------------------------------------------------
+
       - name: Checkout code
         uses: actions/checkout@v4
+
+      # ------------------------------------------------------
+      # Setup Docker Buildx
+      # ------------------------------------------------------
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Login GHCR
+      # ------------------------------------------------------
+      # Login to GitHub Container Registry
+      # ------------------------------------------------------
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -95,9 +149,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # ------------------------------------------------------
-      # BACKEND: GENERATE TAGS
-      # ------------------------------------------------------
+      # ======================================================
+      # BACKEND: GENERATE DOCKER TAGS
+      # ======================================================
+
       - name: Generate tags for backend image
         id: meta-backend
         uses: docker/metadata-action@v5
@@ -107,41 +162,74 @@ jobs:
             type=sha,prefix=sha-,format=long
             type=raw,value=latest
 
-      # Build backend image, load locally for Trivy
+      # ======================================================
+      # BACKEND: BUILD IMAGE
+      # Build và load image vào Docker daemon để Trivy scan
+      # ======================================================
+
       - name: Build backend image (not push yet)
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           file: ./backend/Dockerfile
+
           push: false
           load: true
+
           tags: ${{ steps.meta-backend.outputs.tags }}
+
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Scan backend image
+      # ======================================================
+      # BACKEND: VERIFY LOCAL IMAGE TAG
+      # Kiểm tra image có tồn tại trước khi chạy Trivy
+      # ======================================================
+
+      - name: Verify backend image tag
+        run: |
+          docker image inspect "${IMAGE_BACKEND}:sha-${GITHUB_SHA}" > /dev/null
+          echo "Backend Docker image is ready for Trivy scanning."
+
+      # ======================================================
+      # BACKEND: SECURITY SCAN WITH TRIVY
+      #
+      # Quan trọng:
+      # Trivy sử dụng full GitHub SHA.
+      # Docker Metadata cũng tạo tag bằng full SHA.
+      # Hai tag phải giống nhau hoàn toàn.
+      # ======================================================
+
       - name: Scan backend image for vulnerabilities
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.IMAGE_BACKEND }}:sha-${{ steps.meta-backend.outputs.version }}
+          image-ref: ${{ env.IMAGE_BACKEND }}:sha-${{ github.sha }}
           format: table
           exit-code: '0'
           severity: CRITICAL,HIGH
 
-      # Push backend after scan
+      # ======================================================
+      # BACKEND: PUSH IMAGE TO GHCR
+      # Chỉ push sau khi Trivy scan hoàn thành
+      # ======================================================
+
       - name: Push backend image to registry
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           file: ./backend/Dockerfile
+
           push: true
+
           tags: ${{ steps.meta-backend.outputs.tags }}
+
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # ------------------------------------------------------
-      # FRONTEND: GENERATE TAGS
-      # ------------------------------------------------------
+      # ======================================================
+      # FRONTEND: GENERATE DOCKER TAGS
+      # ======================================================
+
       - name: Generate tags for frontend image
         id: meta-frontend
         uses: docker/metadata-action@v5
@@ -151,13 +239,19 @@ jobs:
             type=sha,prefix=sha-,format=long
             type=raw,value=latest
 
-      # Build and push frontend
+      # ======================================================
+      # FRONTEND: BUILD AND PUSH IMAGE
+      # ======================================================
+
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
+
           push: true
+
           tags: ${{ steps.meta-frontend.outputs.tags }}
+
           cache-from: type=gha
           cache-to: type=gha,mode=max
