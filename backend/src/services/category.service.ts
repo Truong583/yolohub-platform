@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'
 import { Category, ICategory } from '../models/category'
 import { Course } from '../models/course'
 import { AppError } from '../utils/errors'
@@ -83,11 +84,12 @@ export class CategoryService {
     // Build sort object
     const sort: Record<string, 1 | -1> = {}
     sort[sortBy] = sortOrder === 'desc' ? -1 : 1
+    const sanitizedFilter = mongoose.sanitizeFilter(filter)
 
     // Execute queries in parallel
     const [categories, total] = await Promise.all([
-      Category.find(filter).sort(sort).skip(skip).limit(limitNum).lean<ICategory[]>(),
-      Category.countDocuments(filter)
+      Category.find(sanitizedFilter).sort(sort).skip(skip).limit(limitNum).lean<ICategory[]>(),
+      Category.countDocuments(sanitizedFilter)
     ])
 
     const totalPages = Math.ceil(total / limitNum)

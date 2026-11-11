@@ -93,11 +93,12 @@ export class CouponService {
     // Build sort object
     const sort: Record<string, 1 | -1> = {}
     sort[sortBy] = sortOrder === 'desc' ? -1 : 1
+    const sanitizedFilter = mongoose.sanitizeFilter(filter)
 
     // Execute queries in parallel
     const [coupons, total] = await Promise.all([
-      Coupon.find(filter).populate('courseIds', 'title').sort(sort).skip(skip).limit(limitNum).lean<ICoupon[]>(),
-      Coupon.countDocuments(filter)
+      Coupon.find(sanitizedFilter).populate('courseIds', 'title').sort(sort).skip(skip).limit(limitNum).lean<ICoupon[]>(),
+      Coupon.countDocuments(sanitizedFilter)
     ])
 
     const totalPages = Math.ceil(total / limitNum)
