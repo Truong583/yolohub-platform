@@ -87,7 +87,7 @@ export class TrackController {
       throw new AppError('User not authenticated', 401)
     }
 
-    const { trackId } = req.params
+    const { trackId } = req.params as Record<string, string>
     const track = await TrackService.getTrackById(trackId, userId)
 
     sendSuccess.ok(res, 'Track retrieved successfully', { track })
@@ -102,7 +102,7 @@ export class TrackController {
       throw new AppError('User not authenticated', 401)
     }
 
-    const { trackId } = req.params
+    const { trackId } = req.params as Record<string, string>
     await TrackService.deleteTrack(trackId, userId)
 
     sendSuccess.ok(res, 'Track deleted successfully')

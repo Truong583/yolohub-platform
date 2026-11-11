@@ -30,7 +30,7 @@ export class ChapterController {
    * Get chapter by ID
    */
   static async getChapterById(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
 
     const chapter = await ChapterService.getChapterById(id)
 
@@ -41,7 +41,7 @@ export class ChapterController {
    * Update chapter
    */
   static async updateChapter(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     const updateData: UpdateChapterInput = req.body
 
     const chapter = await ChapterService.updateChapter(id, updateData)
@@ -53,7 +53,7 @@ export class ChapterController {
    * Delete chapter
    */
   static async deleteChapter(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
 
     await ChapterService.deleteChapter(id)
 
@@ -64,7 +64,7 @@ export class ChapterController {
    * Get chapters for a specific course
    */
   static async getCourseChapters(req: Request, res: Response): Promise<void> {
-    const { courseId } = req.params
+    const { courseId } = req.params as Record<string, string>
 
     const chapters = await ChapterService.getPublicChaptersForCourse(courseId)
 
@@ -86,7 +86,7 @@ export class ChapterController {
    * Add lesson to chapter
    */
   static async addLessonToChapter(req: Request, res: Response): Promise<void> {
-    const { chapterId, lessonId } = req.params
+    const { chapterId, lessonId } = req.params as Record<string, string>
 
     const chapter = await ChapterService.addLessonToChapter(chapterId, lessonId)
 
@@ -97,7 +97,7 @@ export class ChapterController {
    * Remove lesson from chapter
    */
   static async removeLessonFromChapter(req: Request, res: Response): Promise<void> {
-    const { chapterId, lessonId } = req.params
+    const { chapterId, lessonId } = req.params as Record<string, string>
 
     const chapter = await ChapterService.removeLessonFromChapter(chapterId, lessonId)
 

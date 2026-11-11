@@ -30,7 +30,7 @@ export class LessonController {
    * Get lesson by ID with optional resource population
    */
   static async getLessonById(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     const { includeQuestions } = req.query
 
     const lesson = await LessonService.getLessonById(id, includeQuestions === 'true')
@@ -42,7 +42,7 @@ export class LessonController {
    * Update lesson (supports resource data updates)
    */
   static async updateLesson(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     const updateData: UpdateLessonInput = req.body
 
     const lesson = await LessonService.updateLesson(id, updateData)
@@ -54,7 +54,7 @@ export class LessonController {
    * Delete lesson (supports cascade delete of resources)
    */
   static async deleteLesson(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
 
     await LessonService.deleteLesson(id)
 
@@ -65,7 +65,7 @@ export class LessonController {
    * Get lessons for a specific chapter
    */
   static async getChapterLessons(req: Request, res: Response): Promise<void> {
-    const { chapterId } = req.params
+    const { chapterId } = req.params as Record<string, string>
 
     const result = await LessonService.getLessons(chapterId)
 
@@ -76,7 +76,7 @@ export class LessonController {
    * Get lessons for a specific course
    */
   static async getCourseLessons(req: Request, res: Response): Promise<void> {
-    const { courseId } = req.params
+    const { courseId } = req.params as Record<string, string>
     const query = req.query as unknown as GetCourseLessonsQuery
 
     const result = await LessonService.getCourseLessons(courseId, query)

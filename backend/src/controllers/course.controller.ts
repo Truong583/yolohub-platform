@@ -52,7 +52,7 @@ export class CourseController {
    * Get course by ID
    */
   static async getCourseById(req: Request, res: Response): Promise<void> {
-    const { courseId } = req.params
+    const { courseId } = req.params as Record<string, string>
 
     // Allow access to unpublished courses for authors and admins
     const canViewUnpublished =
@@ -72,7 +72,7 @@ export class CourseController {
    * Get course by slug
    */
   static async getCourseBySlug(req: Request, res: Response): Promise<void> {
-    const { slug } = req.params
+    const { slug } = req.params as Record<string, string>
 
     const course = await CourseService.getCourseBySlug(slug)
 
@@ -88,7 +88,7 @@ export class CourseController {
    * Update course
    */
   static async updateCourse(req: Request, res: Response): Promise<void> {
-    const { courseId } = req.params
+    const { courseId } = req.params as Record<string, string>
     const course = await CourseService.updateCourse(courseId, req.body)
     sendSuccess.ok(res, 'Course updated successfully', { course })
   }
@@ -97,7 +97,7 @@ export class CourseController {
    * Delete course
    */
   static async deleteCourse(req: Request, res: Response): Promise<void> {
-    const { courseId } = req.params
+    const { courseId } = req.params as Record<string, string>
     await CourseService.deleteCourse(courseId)
     sendSuccess.ok(res, 'Course deleted successfully')
   }
@@ -197,7 +197,7 @@ export class CourseController {
    * Enroll in course (increment sold count)
    */
   static async enrollInCourse(req: Request, res: Response): Promise<void> {
-    const { courseId } = req.params
+    const { courseId } = req.params as Record<string, string>
 
     await CourseService.incrementSold(courseId)
     sendSuccess.ok(res, 'Successfully enrolled in course')
@@ -207,7 +207,7 @@ export class CourseController {
    * Enroll in free course
    */
   static async enrollInFreeCourse(req: Request, res: Response): Promise<void> {
-    const { courseId } = req.params
+    const { courseId } = req.params as Record<string, string>
     const userId = req.user?.userId
 
     if (!userId) {
@@ -222,7 +222,7 @@ export class CourseController {
    * Get related courses for a specific course
    */
   static async getRelatedCourses(req: Request, res: Response): Promise<void> {
-    const { courseId } = req.params
+    const { courseId } = req.params as Record<string, string>
     const limit = parseInt(req.query.limit as string) || 5
 
     const result = await CourseService.getRelatedCourses(courseId, limit)
