@@ -27,8 +27,10 @@ WORKDIR /app
 # API URL được truyền từ GitHub Actions khi Docker Build
 # NEXT_PUBLIC_* được Next.js đóng gói vào frontend bundle
 ARG NEXT_PUBLIC_API_URL=https://api.truongtest.id.vn/api/v1
+ARG NEXT_PUBLIC_SITE_URL=https://truongtest.id.vn
 
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
 
 COPY --from=deps /app/node_modules ./node_modules
 
