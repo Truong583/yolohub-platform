@@ -1,0 +1,136 @@
+
+# ============================================================
+# YOLOHUB - CONTINUOUS DEPLOYMENT
+# CI Success -> SSH -> Deploy -> Verify
+# ============================================================
+
+name: CD Pipeline
+
+on:
+  workflow_run:
+    workflows:
+      - CI Pipeline
+    types:
+      - completed
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+# Không chạy đồng thời nhiều deployment production.
+concurrency:
+  group: yolohub-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to Ubuntu Production
+
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # Sử dụng GitHub Environment tên production.
+    environment: production
+
+    steps:
+      # ------------------------------------------------------
+      # 1. VALIDATE SECRETS
+      # ------------------------------------------------------
+      - name: Validate deployment configuration
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          DEPLOY_SSH_KNOWN_HOSTS: ${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}
+
+        run: |
+          set -Eeuo pipefail
+
+          [[ -n "$DEPLOY_HOST" ]] || {
+            echo "Missing DEPLOY_HOST"
+            exit 1
+          }
+
+          [[ "$DEPLOY_HOST" =~ ^[A-Za-z0-9.-]+$ ]] || exit 1
+
+          [[ "$DEPLOY_PORT" =~ ^[0-9]{1,5}$ ]] || exit 1
+          (( DEPLOY_PORT >= 1 && DEPLOY_PORT <= 65535 ))
+
+          [[ -n "$DEPLOY_SSH_PRIVATE_KEY" ]] || exit 1
+          [[ -n "$DEPLOY_SSH_KNOWN_HOSTS" ]] || exit 1
+
+          echo "Deployment configuration is valid."
+
+      # ------------------------------------------------------
+      # 2. CONFIGURE SSH
+      # ------------------------------------------------------
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          DEPLOY_SSH_KNOWN_HOSTS: ${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}
+
+        run: |
+          set -Eeuo pipefail
+
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+
+          printf '%s\n' "$DEPLOY_SSH_PRIVATE_KEY" \
+            > "$HOME/.ssh/yolohub_cd_ed25519"
+
+          printf '%s\n' "$DEPLOY_SSH_KNOWN_HOSTS" \
+            > "$HOME/.ssh/known_hosts"
+
+          chmod 600 "$HOME/.ssh/yolohub_cd_ed25519"
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+          ssh-keygen -y \
+            -f "$HOME/.ssh/yolohub_cd_ed25519" \
+            > /dev/null
+
+          echo "SSH configuration completed."
+
+      # ------------------------------------------------------
+      # 3. DEPLOY EXACT COMMIT FROM CI
+      # ------------------------------------------------------
+      - name: Deploy YOLOHUB
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_SHA: ${{ github.event.workflow_run.head_sha }}
+
+        run: |
+          set -Eeuo pipefail
+
+          if [[ ! "$DEPLOY_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Invalid deployment SHA."
+            exit 1
+          fi
+
+          echo "Deploying commit: ${DEPLOY_SHA}"
+
+          ssh -T \
+            -p "$DEPLOY_PORT" \
+            -i "$HOME/.ssh/yolohub_cd_ed25519" \
+            -o IdentitiesOnly=yes \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -o ConnectTimeout=15 \
+            "yolohub-deploy@${DEPLOY_HOST}" \
+            "deploy ${DEPLOY_SHA}"
+
+      # ------------------------------------------------------
+      # 4. DEPLOYMENT RESULT
+      # ------------------------------------------------------
+      - name: Deployment summary
+        if: success()
+        run: |
+          echo "YOLOHUB deployment succeeded."
+          echo "Commit: ${{ github.event.workflow_run.head_sha }}"
