@@ -1,87 +1,170 @@
-#!/bin/bash
-# ==============================================================================
-# Script: deploy-basic.sh
-# Mục đích: Triển khai ứng dụng tự động bằng Docker Compose (Mục 6.4 chuẩn DevSecOps)
-# ==============================================================================
 
-# Bắt buộc dừng script ngay lập tức nếu có bất kỳ lệnh nào bị lỗi hoặc biến chưa khai báo
-set -euo pipefail
+#!/usr/bin/env bash
 
-# ------------------------------------------------------------------------------
-# 1. Hiển thị thông tin người thực thi và máy chủ
-# ------------------------------------------------------------------------------
+# ============================================================
+# YOLOHUB - PRODUCTION DEPLOYMENT SCRIPT
+# Cloudflare -> Ubuntu Nginx -> Docker Containers
+# ============================================================
+
+set -Eeuo pipefail
+
+# ------------------------------------------------------------
+# 1. PROJECT INFORMATION
+# ------------------------------------------------------------
+
 echo "=========================================================="
-echo "🚀 BẮT ĐẦU QUY TRÌNH DEPLOY YOLOHUB PLATFORM"
-echo "👤 Thực thi bởi user : $(whoami)"
-echo "🖥️ Máy chủ (host)    : $(hostname)"
-echo "⏰ Thời gian         : $(date '+%Y-%m-%d %H:%M:%S')"
+echo "🚀 BẮT ĐẦU DEPLOY YOLOHUB PLATFORM"
+echo "👤 User       : $(whoami)"
+echo "🖥️ Server     : $(hostname)"
+echo "⏰ Thời gian  : $(date '+%Y-%m-%d %H:%M:%S')"
 echo "=========================================================="
 
-# ------------------------------------------------------------------------------
-# 2. Định vị thư mục gốc của dự án
-# ------------------------------------------------------------------------------
-# Lấy thư mục cha của thư mục chứa script này (tức là thư mục gốc repo)
+# ------------------------------------------------------------
+# 2. FIND PROJECT DIRECTORY
+# ------------------------------------------------------------
+
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-
-echo "📂 Kiểm tra thư mục dự án: ${PROJECT_DIR}"
-if [ ! -d "${PROJECT_DIR}" ]; then
-  echo "❌ [LỖI NGHIÊM TRỌNG] Thư mục dự án không tồn tại: ${PROJECT_DIR}" >&2
-  exit 1
-fi
-
 cd "${PROJECT_DIR}"
-echo "✅ Đã chuyển đến thư mục làm việc: $(pwd)"
 
-# ------------------------------------------------------------------------------
-# 3. Xác định phiên bản Image (Mã commit SHA hoặc latest)
-# ------------------------------------------------------------------------------
-# Cho phép truyền tag qua tham số: ./deploy-basic.sh sha-a1b2c3d
-TAG="${1:-latest}"
-export TAG
-echo "🏷️ Phiên bản Docker Image triển khai (TAG): ${TAG}"
+echo "📂 Project directory: ${PROJECT_DIR}"
+
+# ------------------------------------------------------------
+# 3. CONFIGURATION
+# ------------------------------------------------------------
 
 COMPOSE_FILE="infra/compose/docker-compose.prod.yml"
-if [ ! -f "${COMPOSE_FILE}" ]; then
-  echo "❌ [LỖI] Không tìm thấy file compose production: ${COMPOSE_FILE}" >&2
-  exit 1
+
+# Default deployment tag is latest.
+# Can deploy a specific version:
+# ./scripts/deploy-basic.sh sha-<commit-sha>
+
+TAG="${1:-latest}"
+export TAG
+
+echo "🏷️ Docker Image TAG: ${TAG}"
+
+# Validate Docker tag format
+if [[ ! "${TAG}" =~ ^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$ ]]; then
+    echo "❌ Invalid Docker image tag: ${TAG}" >&2
+    exit 1
 fi
 
-# ------------------------------------------------------------------------------
-# 4. Kéo Docker Image mới nhất từ GitHub Container Registry (GHCR)
-# ------------------------------------------------------------------------------
-echo ""
-echo "📥 [BƯỚC 1/4] Kéo các Docker Images đã kiểm thử từ GHCR..."
-docker compose -f "${COMPOSE_FILE}" pull backend frontend reverse-proxy || {
-  echo "⚠️ Cảnh báo: Kéo image thất bại. Sẽ thử chạy bằng image sẵn có nếu có."
-}
+# ------------------------------------------------------------
+# 4. CHECK REQUIREMENTS
+# ------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
-# 5. Khởi động lại hệ thống với Docker Compose
-# ------------------------------------------------------------------------------
 echo ""
-echo "🔄 [BƯỚC 2/4] Cập nhật và khởi động các container..."
+echo "🔍 Kiểm tra môi trường triển khai..."
+
+if ! command -v docker >/dev/null 2>&1; then
+    echo "❌ Docker chưa được cài đặt." >&2
+    exit 1
+fi
+
+if ! docker info >/dev/null 2>&1; then
+    echo "❌ Không thể kết nối Docker daemon." >&2
+    exit 1
+fi
+
+if [[ ! -f "${COMPOSE_FILE}" ]]; then
+    echo "❌ Không tìm thấy ${COMPOSE_FILE}" >&2
+    exit 1
+fi
+
+# Required production environment files
+for ENV_FILE in backend/.env frontend/.env; do
+    if [[ ! -f "${ENV_FILE}" ]]; then
+        echo "❌ Thiếu environment file: ${ENV_FILE}" >&2
+        echo "Hãy tạo file từ env.example và điền giá trị production." >&2
+        exit 1
+    fi
+done
+
+echo "✅ Docker daemon hoạt động."
+echo "✅ Compose file tồn tại."
+echo "✅ Environment files tồn tại."
+
+# ------------------------------------------------------------
+# 5. VALIDATE DOCKER COMPOSE CONFIGURATION
+# ------------------------------------------------------------
+
+echo ""
+echo "🧪 Kiểm tra Docker Compose configuration..."
+
+docker compose -f "${COMPOSE_FILE}" config --quiet
+
+SERVICES="$(docker compose -f "${COMPOSE_FILE}" config --services)"
+
+for SERVICE in db backend frontend; do
+    if ! grep -qx "${SERVICE}" <<< "${SERVICES}"; then
+        echo "❌ Thiếu service bắt buộc: ${SERVICE}" >&2
+        exit 1
+    fi
+done
+
+if grep -qx "reverse-proxy" <<< "${SERVICES}"; then
+    echo "❌ Compose vẫn chứa reverse-proxy."
+    echo "YOLOHUB phải sử dụng Nginx trên Ubuntu host."
+    exit 1
+fi
+
+echo "✅ Compose configuration hợp lệ."
+echo "✅ Services: db, backend, frontend."
+
+# ------------------------------------------------------------
+# 6. PULL DOCKER IMAGES FROM GHCR
+# ------------------------------------------------------------
+
+echo ""
+echo "📥 [BƯỚC 1/3] Pull Docker Images từ GHCR..."
+
+docker compose -f "${COMPOSE_FILE}" pull db backend frontend
+
+echo "✅ Đã pull toàn bộ Docker Images."
+
+# ------------------------------------------------------------
+# 7. START / UPDATE APPLICATION CONTAINERS
+# ------------------------------------------------------------
+
+echo ""
+echo "🔄 [BƯỚC 2/3] Khởi động các container..."
+
+# Remove the old YOLOHUB Nginx container if it is an orphan
+# Preserve MongoDB named volume and existing data.
 docker compose -f "${COMPOSE_FILE}" up -d --remove-orphans
 
-# ------------------------------------------------------------------------------
-# 6. Kiểm tra trạng thái hoạt động của Container
-# ------------------------------------------------------------------------------
+echo "✅ Docker Compose đã cập nhật container."
+
+# ------------------------------------------------------------
+# 8. DISPLAY CONTAINER STATUS
+# ------------------------------------------------------------
+
 echo ""
-echo "📊 [BƯỚC 3/4] Trạng thái các container sau khi khởi động:"
+echo "📊 [BƯỚC 3/3] Trạng thái container..."
+
 docker compose -f "${COMPOSE_FILE}" ps
 
-# ------------------------------------------------------------------------------
-# 7. In 40 dòng log gần nhất để kiểm tra lỗi lúc khởi động
-# ------------------------------------------------------------------------------
+# ------------------------------------------------------------
+# 9. DISPLAY RECENT LOGS
+# ------------------------------------------------------------
+
 echo ""
-echo "📋 [BƯỚC 4/4] 40 dòng log gần nhất của Backend và Nginx:"
-echo "------------------- [BACKEND LOGS] -------------------"
-docker compose -f "${COMPOSE_FILE}" logs --tail=20 backend || true
-echo "------------------- [NGINX LOGS] ---------------------"
-docker compose -f "${COMPOSE_FILE}" logs --tail=20 reverse-proxy || true
+echo "📋 Backend, Frontend và Database logs..."
+
+docker compose -f "${COMPOSE_FILE}" logs --tail=30 db backend frontend
+
+# ------------------------------------------------------------
+# 10. DEPLOYMENT SUMMARY
+# ------------------------------------------------------------
 
 echo ""
 echo "=========================================================="
-echo "🎉 DEPLOY HOÀN TẤT THÀNH CÔNG!"
-echo "👉 Bước tiếp theo: Hãy chạy './scripts/verify.sh' để kiểm thử toàn diện."
+echo "✅ LỆNH DEPLOY ĐÃ HOÀN TẤT."
+echo ""
+echo "Frontend : http://127.0.0.1:4000"
+echo "Backend  : http://127.0.0.1:8888"
+echo "API      : https://api.truongtest.id.vn"
+echo ""
+echo "👉 Tiếp theo: chạy ./scripts/verify.sh"
+echo "để kiểm tra ứng dụng sau triển khai."
 echo "=========================================================="
-
