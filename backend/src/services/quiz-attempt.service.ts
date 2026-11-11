@@ -274,7 +274,7 @@ export class QuizAttemptService {
     const quiz = attempt.quizId as { duration?: number }
     if (quiz && quiz.duration && quiz.duration > 0 && this.isTimeExpired(attempt.startedAt, quiz.duration)) {
       // Get all quiz questions to calculate point-based score
-      const questions = await QuizQuestion.find({ quizId: attempt.quizId }).lean()
+      const questions = (await QuizQuestion.find({ quizId: attempt.quizId }).lean()) as unknown as IQuizQuestion[]
       const questionMap = new Map(questions.map((q) => [q._id.toString(), q]))
 
       // Auto-complete with current answers only and calculate point-based score
@@ -423,7 +423,7 @@ export class QuizAttemptService {
         const quiz = attempt.quizId as { duration?: number; passingScorePercentage?: number }
         if (quiz && quiz.duration && quiz.duration > 0 && this.isTimeExpired(attempt.startedAt, quiz.duration)) {
           // Get all quiz questions to calculate point-based score
-          const questions = await QuizQuestion.find({ quizId: attempt.quizId }).lean()
+          const questions = (await QuizQuestion.find({ quizId: attempt.quizId }).lean()) as unknown as IQuizQuestion[]
 
           // Auto-complete the expired attempt with point-based scoring
           let totalEarnedPoints = 0
@@ -458,7 +458,7 @@ export class QuizAttemptService {
       const wrongAnswers = totalQuestions - correctAnswers
 
       // Calculate total possible points for this attempt to determine if passed
-      const questions = await QuizQuestion.find({ quizId: attempt.quizId }).lean()
+      const questions = (await QuizQuestion.find({ quizId: attempt.quizId }).lean()) as unknown as IQuizQuestion[]
       const totalPossiblePoints = questions.reduce((sum, q) => sum + (q.point || 1), 0)
       const isPassed = this.isPassed(attempt.score, totalPossiblePoints, passingScore)
 
