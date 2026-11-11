@@ -60,7 +60,7 @@ export class OrderController {
    * Get order by ID
    */
   static async getOrderById(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     const order = await OrderService.getOrderById(id)
 
     sendSuccess.ok(res, 'Order retrieved successfully', order)
@@ -70,7 +70,7 @@ export class OrderController {
    * Get order by code
    */
   static async getOrderByCode(req: Request, res: Response): Promise<void> {
-    const { code } = req.params
+    const { code } = req.params as Record<string, string>
     const order = await OrderService.getOrderByCode(code)
 
     sendSuccess.ok(res, 'Order retrieved successfully', { order })
@@ -80,7 +80,7 @@ export class OrderController {
    * Update order status (Admin only)
    */
   static async updateOrderStatus(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     const statusData: UpdateOrderStatusInput = req.body
 
     const order = await OrderService.updateOrderStatus(id, statusData)
@@ -91,7 +91,7 @@ export class OrderController {
    * Cancel order
    */
   static async cancelOrder(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     const userId = req.user?.userId
     const userRoles = req.user?.roles
 
@@ -109,7 +109,7 @@ export class OrderController {
    * Delete order (Admin only)
    */
   static async deleteOrder(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     await OrderService.deleteOrder(id)
     sendSuccess.ok(res, 'Order deleted successfully')
   }
@@ -127,7 +127,7 @@ export class OrderController {
    * Download invoice PDF for an order
    */
   static async downloadInvoice(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
+    const { id } = req.params as Record<string, string>
     const userId = req.user?.userId
 
     if (!userId) {

@@ -86,14 +86,14 @@ export class CategoryService {
 
     // Execute queries in parallel
     const [categories, total] = await Promise.all([
-      Category.find(filter).sort(sort).skip(skip).limit(limitNum).lean(),
+      Category.find(filter).sort(sort).skip(skip).limit(limitNum).lean<ICategory[]>(),
       Category.countDocuments(filter)
     ])
 
     const totalPages = Math.ceil(total / limitNum)
 
     return {
-      categories: categories as ICategory[],
+      categories,
       pagination: {
         total,
         page: pageNum,

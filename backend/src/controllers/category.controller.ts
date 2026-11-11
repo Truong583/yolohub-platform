@@ -47,7 +47,7 @@ export class CategoryController {
    * Get category by ID
    */
   static async getCategoryById(req: Request, res: Response): Promise<void> {
-    const { categoryId } = req.params
+    const { categoryId } = req.params as Record<string, string>
     const category = await CategoryService.getCategoryById(categoryId)
 
     sendSuccess.ok(res, 'Category fetched successfully', { category })
@@ -57,7 +57,7 @@ export class CategoryController {
    * Update category
    */
   static async updateCategory(req: Request, res: Response): Promise<void> {
-    const { categoryId } = req.params
+    const { categoryId } = req.params as Record<string, string>
     const updateData: UpdateCategoryInput = req.body
     const category = await CategoryService.updateCategory(categoryId, updateData)
 
@@ -68,7 +68,7 @@ export class CategoryController {
    * Delete category
    */
   static async deleteCategory(req: Request, res: Response): Promise<void> {
-    const { categoryId } = req.params
+    const { categoryId } = req.params as Record<string, string>
     await CategoryService.deleteCategory(categoryId)
 
     sendSuccess.ok(res, 'Category deleted successfully')

@@ -96,14 +96,14 @@ export class CouponService {
 
     // Execute queries in parallel
     const [coupons, total] = await Promise.all([
-      Coupon.find(filter).populate('courseIds', 'title').sort(sort).skip(skip).limit(limitNum).lean(),
+      Coupon.find(filter).populate('courseIds', 'title').sort(sort).skip(skip).limit(limitNum).lean<ICoupon[]>(),
       Coupon.countDocuments(filter)
     ])
 
     const totalPages = Math.ceil(total / limitNum)
 
     return {
-      coupons: coupons as ICoupon[],
+      coupons,
       total,
       page: pageNum,
       limit: limitNum,

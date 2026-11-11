@@ -17,7 +17,7 @@ export class QuizAttemptController {
       throw new AppError('User not authenticated', 401)
     }
 
-    const { quizId } = req.params
+    const { quizId } = req.params as Record<string, string>
     const result = await QuizAttemptService.checkQuizAttemptStatus(userId, quizId)
 
     sendSuccess.ok(res, 'Quiz continuity check completed', result)
@@ -46,7 +46,7 @@ export class QuizAttemptController {
       throw new AppError('User not authenticated', 401)
     }
 
-    const { quizId } = req.params
+    const { quizId } = req.params as Record<string, string>
     const questions = await QuizAttemptService.getQuizQuestions(quizId, userId)
 
     sendSuccess.ok(res, 'Quiz questions retrieved successfully', questions)
@@ -61,7 +61,7 @@ export class QuizAttemptController {
       throw new AppError('User not authenticated', 401)
     }
 
-    const { attemptId } = req.params
+    const { attemptId } = req.params as Record<string, string>
     const attempt = await QuizAttemptService.submitAnswer(attemptId, req.body, userId)
 
     sendSuccess.ok(res, 'Answer submitted successfully', attempt)
@@ -76,7 +76,7 @@ export class QuizAttemptController {
       throw new AppError('User not authenticated', 401)
     }
 
-    const { attemptId } = req.params
+    const { attemptId } = req.params as Record<string, string>
     const attempt = await QuizAttemptService.completeQuizAttempt(attemptId, req.body, userId)
 
     sendSuccess.ok(res, 'Quiz attempt completed successfully', attempt)
@@ -108,7 +108,7 @@ export class QuizAttemptController {
       throw new AppError('User not authenticated', 401)
     }
 
-    const { attemptId } = req.params
+    const { attemptId } = req.params as Record<string, string>
     const result = await QuizAttemptService.getQuizAttemptById(attemptId, userId)
 
     sendSuccess.ok(res, 'Quiz attempt retrieved successfully', {
@@ -129,7 +129,7 @@ export class QuizAttemptController {
       throw new AppError('User not authenticated', 401)
     }
 
-    const { attemptId } = req.params
+    const { attemptId } = req.params as Record<string, string>
     await QuizAttemptService.deleteQuizAttempt(attemptId, userId)
 
     sendSuccess.ok(res, 'Quiz attempt deleted successfully')

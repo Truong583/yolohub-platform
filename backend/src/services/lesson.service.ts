@@ -1,6 +1,6 @@
 import mongoose, { FilterQuery } from 'mongoose'
 import { Lesson, ILesson, Video, IVideo, Article, IArticle, Quiz, IQuiz } from '../models/lesson'
-import { QuizQuestion } from '../models/quiz-question'
+import { QuizQuestion, IQuizQuestion } from '../models/quiz-question'
 import { Chapter } from '../models/chapter'
 import { Course } from '../models/course'
 import { ValidationError, NotFoundError, DatabaseError, ErrorCodes } from '../utils/errors'
@@ -251,16 +251,16 @@ export class LessonService {
 
     switch (lessonData.contentType) {
       case 'video': {
-        resource = await Video.findById(lessonData.resourceId).lean()
+        resource = await Video.findById(lessonData.resourceId).lean<IVideo>()
         break
       }
       case 'article': {
-        resource = await Article.findById(lessonData.resourceId).lean()
+        resource = await Article.findById(lessonData.resourceId).lean<IArticle>()
         break
       }
       case 'quiz': {
         // Get quiz resource and its questions count
-        const quizResource = await Quiz.findById(lessonData.resourceId).lean()
+        const quizResource = await Quiz.findById(lessonData.resourceId).lean<IQuiz>()
         if (quizResource) {
           // Get total questions count for this quiz
           const totalQuestions = await QuizQuestion.countDocuments({ quizId: lessonData.resourceId })
@@ -270,7 +270,7 @@ export class LessonService {
           if (includeQuestions) {
             questions = await QuizQuestion.find({ quizId: lessonData.resourceId })
               .select('question explanation type options correctAnswers point')
-              .lean()
+              .lean<IQuizQuestion[]>()
           }
 
           // Add totalQuestions and optionally questions to the quiz resource
